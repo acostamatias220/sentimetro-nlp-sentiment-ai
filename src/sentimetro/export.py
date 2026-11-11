@@ -29,6 +29,9 @@ from sentimetro.model_card import ModelCard
 logger = logging.getLogger(__name__)
 
 PARITY_ATOL = 1e-3
+# Minimum share of validation reviews where int8 must predict the same label as
+# fp32; below it the fp32 model is published instead.
+MIN_INT8_AGREEMENT = 0.97
 
 
 def export_onnx(model_dir: Path, out_dir: Path, opset: int = 18) -> Path:
@@ -75,7 +78,11 @@ def export_onnx(model_dir: Path, out_dir: Path, opset: int = 18) -> Path:
 
 
 def quantize_int8(src: Path, dst: Path) -> Path:
-    """Dynamic quantization: int8 weights, activations quantized on the fly at runtime.
+    """Dynamic quantization: 8-bit weights, activations quantized on the fly at runtime.
+
+    Weights use *unsigned* int8 (U8U8). Signed weights (S8) can saturate on x86
+    CPUs without VNNI instructions: on this model they flipped ~35% of the
+    predictions, while U8 keeps ~99% agreement with fp32.
 
     The dynamo exporter stores intermediate ``value_info`` shapes that ONNX's
     shape inference (run by the quantizer) rejects, so they are dropped first;
@@ -93,7 +100,7 @@ def quantize_int8(src: Path, dst: Path) -> Path:
     onnx.save(model, str(stripped))
     try:
         quant_pre_process(str(stripped), str(pre), skip_symbolic_shape=True)
-        quantize_dynamic(str(pre), str(dst), weight_type=QuantType.QInt8)
+        quantize_dynamic(str(pre), str(dst), weight_type=QuantType.QUInt8)
     finally:
         stripped.unlink(missing_ok=True)
         pre.unlink(missing_ok=True)
@@ -172,7 +179,14 @@ def export_transformer(cfg: Config, n_parity: int = 500) -> Path:
         parity_int8 = check_parity(reference, int8, texts_list)
         logger.info("int8 parity: %s", parity_int8)
         _write_card(torch_card, int8_dir, "model.onnx", "int8", parity_int8)
-        chosen = int8_dir
+        if parity_int8["label_agreement"] >= MIN_INT8_AGREEMENT:
+            chosen = int8_dir
+        else:
+            logger.warning(
+                "int8 agreement %.3f < %.2f: publishing the fp32 model instead",
+                parity_int8["label_agreement"],
+                MIN_INT8_AGREEMENT,
+            )
 
     return _publish(chosen, cfg.export.output_dir)
 
