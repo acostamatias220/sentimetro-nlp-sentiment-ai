@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sentímetro · Demo</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28"><path d="M4 22a12 12 0 0 1 24 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M16 22 23 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="22" r="2.5" fill="currentColor"/></svg>
+        </span>
+        <div>
+          <h1>Sentímetro</h1>
+          <p>Análisis de sentimiento de reseñas en español</p>
+        </div>
+      </div>
+      <nav>
+        <a href="/docs" target="_blank" rel="noopener">API docs</a>
+        <a href="/metrics" target="_blank" rel="noopener">Métricas</a>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <section class="panel input-panel">
+        <h2>Reseñas</h2>
+        <p class="hint">Una reseña por línea · hasta <span id="max-batch">64</span> por lote.</p>
+        <textarea id="texts" rows="9" spellcheck="false" placeholder="Escribí una reseña por línea…"></textarea>
+        <div class="examples">
+          <span>Ejemplos:</span>
+          <button type="button" class="chip" data-example="mix">Mixtas</button>
+          <button type="button" class="chip" data-example="neg">Negativas</button>
+          <button type="button" class="chip" data-example="hard">Difíciles</button>
+        </div>
+        <details class="api-key">
+          <summary>API key (opcional)</summary>
+          <input id="api-key" type="password" autocomplete="off" placeholder="Solo si el servidor tiene SENTIMETRO_API_KEY" />
+        </details>
+        <div class="actions">
+          <button id="analyze" class="primary" type="button">Analizar</button>
+          <button id="clear" class="ghost" type="button">Limpiar</button>
+          <span id="status" role="status"></span>
+        </div>
+      </section>
+
+      <section class="panel results-panel">
+        <div class="results-head">
+          <h2>Resultados</h2>
+          <div id="summary" class="summary"></div>
+        </div>
+        <ol id="results" class="results"><li class="empty">Todavía no hay resultados.</li></ol>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span id="model-info">Cargando modelo…</span>
+    </footer>
+
+    <template id="result-tpl">
+      <li class="result">
+        <div class="result-top">
+          <span class="badge"></span>
+          <span class="confidence"></span>
+        </div>
+        <p class="text"></p>
+        <div class="bars"></div>
+      </li>
+    </template>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
