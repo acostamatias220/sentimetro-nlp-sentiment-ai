@@ -1,0 +1,31 @@
+# Inference stack: API + Prometheus.
+# Requires a published model in ./models/production (`make export`).
+#   cp .env.example .env && docker compose up --build
+
+services:
+  api:
+    build: .
+    image: sentimetro-api
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SENTIMETRO_MODEL_DIR: /app/models/production
+    volumes:
+      - ./models/production:/app/models/production:ro
+    ports:
+      - "${API_PORT:-8000}:8000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    volumes:
+      - ./deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    depends_on:
+      - api
+    restart: unless-stopped
