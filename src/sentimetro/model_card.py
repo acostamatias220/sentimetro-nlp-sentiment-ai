@@ -15,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sentimetro.utils import read_json, write_json
 
 CARD_FILE = "model_card.json"
-Backend = Literal["sklearn", "onnx"]
+Backend = Literal["sklearn", "onnx", "transformers"]
 
 
 class ModelCard(BaseModel):
