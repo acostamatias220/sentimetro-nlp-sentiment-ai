@@ -14,7 +14,8 @@ import unicodedata
 
 _URL_RE = re.compile(r"(https?://\S+|www\.\S+)", re.IGNORECASE)
 _EMAIL_RE = re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b")
-_HTML_TAG_RE = re.compile(r"<[^>]{1,100}>")
+# HTML tags, but not our own placeholders (keeps clean_text idempotent).
+_HTML_TAG_RE = re.compile(r"<(?!(?:url|email)>)[^>]{1,100}>")
 _REPEAT_RE = re.compile(r"(.)\1{3,}")
 _SPACE_RE = re.compile(r"\s+")
 _CONTROL_CATEGORIES = {"Cc", "Cf"}
@@ -34,8 +35,6 @@ def clean_text(text: str) -> str:
     text = _HTML_TAG_RE.sub(" ", text)
     text = _URL_RE.sub(" <url> ", text)
     text = _EMAIL_RE.sub(" <email> ", text)
-    text = "".join(
-        " " if unicodedata.category(ch) in _CONTROL_CATEGORIES else ch for ch in text
-    )
+    text = "".join(" " if unicodedata.category(ch) in _CONTROL_CATEGORIES else ch for ch in text)
     text = _REPEAT_RE.sub(r"\1\1\1", text)
     return _SPACE_RE.sub(" ", text).strip()
