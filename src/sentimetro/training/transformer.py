@@ -39,7 +39,7 @@ def _metrics_fn(eval_pred: Any) -> dict[str, float]:
 def _mlflow_callback(run: Run) -> Any:
     from transformers import TrainerCallback
 
-    class MlflowLogger(TrainerCallback):  # type: ignore[misc]
+    class MlflowLogger(TrainerCallback):
         """Forward Trainer logs (loss, lr, eval metrics) to our MLflow run."""
 
         def on_log(self, args: Any, state: Any, control: Any, logs: Any = None, **_: Any) -> None:
@@ -136,7 +136,9 @@ def train_transformer(cfg: Config, output_dir: Path | None = None) -> ModelCard:
     params.update(train_rows=len(train_df), eval_rows=len(val_df), truncated_ratio=truncated)
 
     with start_run(cfg.tracking, f"transformer-{t.model_name.split('/')[-1]}") as run:
-        run.set_tags({"model_type": "transformer", "git_commit": git_commit(), **environment_info()})
+        run.set_tags(
+            {"model_type": "transformer", "git_commit": git_commit(), **environment_info()}
+        )
         run.log_params(params)
 
         trainer = Trainer(
@@ -156,10 +158,20 @@ def train_transformer(cfg: Config, output_dir: Path | None = None) -> ModelCard:
         train_result = trainer.train()
         train_minutes = (time.perf_counter() - started) / 60
         val_raw = trainer.evaluate()
-        val_metrics = {k.removeprefix("eval_"): float(v) for k, v in val_raw.items()
-                       if k.removeprefix("eval_") in {"accuracy", "macro_f1", "weighted_f1",
-                                                       "polar_error_rate", "f1_negativo",
-                                                       "f1_neutro", "f1_positivo"}}
+        val_metrics = {
+            k.removeprefix("eval_"): float(v)
+            for k, v in val_raw.items()
+            if k.removeprefix("eval_")
+            in {
+                "accuracy",
+                "macro_f1",
+                "weighted_f1",
+                "polar_error_rate",
+                "f1_negativo",
+                "f1_neutro",
+                "f1_positivo",
+            }
+        }
         run.log_metrics({f"val_{k}": v for k, v in val_metrics.items()})
         run.log_metrics({"train_minutes": train_minutes, "train_loss": train_result.training_loss})
 
@@ -168,9 +180,9 @@ def train_transformer(cfg: Config, output_dir: Path | None = None) -> ModelCard:
         card = ModelCard(
             name=f"sentimetro-{t.model_name.split('/')[-1]}",
             version=__version__,
-            backend="onnx",  # the production format; `final/` holds the PyTorch weights
+            backend="transformers",  # PyTorch weights; `sentimetro export` converts them to ONNX
             labels=list(LABELS),
-            artifact="model.onnx",
+            artifact="model.safetensors",
             tokenizer="tokenizer.json",
             max_length=t.max_length,
             base_model=f"{t.model_name}@{t.model_revision[:7]}",
@@ -189,6 +201,8 @@ def train_transformer(cfg: Config, output_dir: Path | None = None) -> ModelCard:
         run.log_artifact(final_dir / "model_card.json")
         logger.info(
             "Saved transformer to %s in %.1f min (val macro-F1 %.4f)",
-            final_dir, train_minutes, val_metrics.get("macro_f1", float("nan")),
+            final_dir,
+            train_minutes,
+            val_metrics.get("macro_f1", float("nan")),
         )
         return card

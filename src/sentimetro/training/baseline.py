@@ -91,7 +91,9 @@ def train_baseline(cfg: Config, output_dir: Path | None = None) -> ModelCard:
     out = output_dir or cfg.baseline.output_dir
     out.mkdir(parents=True, exist_ok=True)
 
-    train = stratified_sample(load_split(cfg.data, "train"), cfg.baseline.train_samples, cfg.data.seed)
+    train = stratified_sample(
+        load_split(cfg.data, "train"), cfg.baseline.train_samples, cfg.data.seed
+    )
     val = load_split(cfg.data, "validation")
     logger.info("Baseline: %d train / %d validation reviews", len(train), len(val))
 
@@ -108,7 +110,7 @@ def train_baseline(cfg: Config, output_dir: Path | None = None) -> ModelCard:
             pipeline = build_pipeline(cfg, c).fit(train["text"], train["label"])
             elapsed = time.perf_counter() - started
             preds = pipeline.predict(val["text"])
-            macro_f1 = compute_metrics(val["label"], preds, LABELS)["macro_f1"]
+            macro_f1 = compute_metrics(val["label"].tolist(), preds, LABELS)["macro_f1"]
             logger.info("  C=%-5g macro-F1=%.4f (%.0fs)", c, macro_f1, elapsed)
             run.log_metrics({f"val_macro_f1_C_{c:g}": macro_f1})
             if best is None or macro_f1 > best[1]:
@@ -116,7 +118,9 @@ def train_baseline(cfg: Config, output_dir: Path | None = None) -> ModelCard:
 
         assert best is not None
         best_c, _, pipeline = best
-        val_metrics = summarize(compute_metrics(val["label"], pipeline.predict(val["text"]), LABELS))
+        val_metrics = summarize(
+            compute_metrics(val["label"].tolist(), pipeline.predict(val["text"]), LABELS)
+        )
         run.log_params({"best_C": best_c})
         run.log_metrics({f"val_{k}": v for k, v in val_metrics.items()})
 
