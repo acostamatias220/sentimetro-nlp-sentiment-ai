@@ -18,7 +18,7 @@ BASELINE  := models/baseline/model_card.json
 TRANSFORMER := models/transformer/final/model_card.json
 PRODUCTION  := models/production/model_card.json
 
-.PHONY: help install data train train-baseline train-baseline-30k train-transformer export \
+.PHONY: help install data train train-baseline train-baseline-30k train-transformer train-transformer-30k export \
         evaluate pipeline serve mlflow-ui test test-fast lint format typecheck check \
         docker-build docker-up clean clean-models
 
@@ -46,7 +46,12 @@ train-baseline-30k: $(PROCESSED) ## same baseline on the 30k subsample used by t
 train-transformer: $(PROCESSED) ## fine-tune DistilBETO (CPU defaults in configs/params.yaml)
 	$(CLI) train-transformer
 
-train: train-baseline train-baseline-30k train-transformer ## train every model
+train-transformer-30k: $(PROCESSED) ## ablation: 30k reviews, 2 epochs, unweighted loss
+	$(CLI) --set transformer.train_samples=30000 --set transformer.epochs=2 \
+		--set transformer.eval_steps=400 --set transformer.class_weighting=null \
+		--set transformer.output_dir=models/transformer-30k train-transformer
+
+train: train-baseline train-baseline-30k train-transformer ## train the models used in production and the baselines
 
 export: ## export the transformer to ONNX (fp32 + int8) and publish models/production
 	$(CLI) export

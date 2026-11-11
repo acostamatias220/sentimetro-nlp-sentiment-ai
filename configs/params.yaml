@@ -28,7 +28,7 @@ baseline:
   max_features_word: 200000
   max_features_char: 300000
   min_df: 2
-  c_grid: [0.5, 1.0, 2.0, 4.0]
+  c_grid: [0.125, 0.25, 0.5, 1.0, 2.0]
   class_weight: balanced
   max_iter: 2000
 
@@ -37,19 +37,20 @@ transformer:
   model_revision: 8b0f77825ae49a0d099bf5e3aea8da71f6c0851f
   output_dir: models/transformer
   # CPU-friendly defaults. On a GPU: train_samples: null, eval_samples: null, fp16: true
-  train_samples: 30000
+  train_samples: 100000        # ~51% of the cleaned train split
   eval_samples: 2000
-  max_length: 128
-  epochs: 2
+  max_length: 128              # covers ~97% of reviews without truncation
+  epochs: 1
   learning_rate: 5.0e-5
   weight_decay: 0.01
   warmup_ratio: 0.06
   train_batch_size: 32
   eval_batch_size: 64
   gradient_accumulation_steps: 1
-  eval_steps: 400
+  eval_steps: 500
   early_stopping_patience: 3
   label_smoothing: 0.0
+  class_weighting: balanced    # inverse-frequency weighted cross-entropy (helps `neutro`)
   fp16: false
   num_threads: null
 
@@ -63,12 +64,15 @@ evaluation:
   reports_dir: reports
   # Every model is evaluated on the full test split (4,990 reviews) and benchmarked on CPU.
   models:
-    baseline:
-      path: models/baseline
-      title: TF-IDF + LogReg
     baseline_30k:
       path: models/baseline-30k
       title: TF-IDF + LogReg (30k)
+    baseline:
+      path: models/baseline
+      title: TF-IDF + LogReg (completo)
+    distilbeto_30k:
+      path: models/transformer-30k/final
+      title: DistilBETO (30k, 2 épocas, sin pesos de clase)
     distilbeto_pytorch:
       path: models/transformer/final
       title: DistilBETO (PyTorch)

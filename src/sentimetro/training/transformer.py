@@ -36,6 +36,28 @@ def _metrics_fn(eval_pred: Any) -> dict[str, float]:
     return summarize(compute_metrics(y_true, y_pred, LABELS))
 
 
+def class_weights(labels: list[int], n_classes: int) -> list[float]:
+    """Inverse-frequency weights normalized so a balanced dataset gives all 1.0."""
+    counts = np.bincount(np.asarray(labels), minlength=n_classes).astype(float)
+    weights = len(labels) / (n_classes * np.clip(counts, 1, None))
+    return [float(w) for w in weights]
+
+
+def _weighted_loss(weights: list[float], label_smoothing: float) -> Any:
+    import torch
+    import torch.nn.functional as F  # noqa: N812
+
+    weight = torch.tensor(weights, dtype=torch.float32)
+
+    def compute_loss(outputs: Any, labels: Any, num_items_in_batch: Any = None) -> Any:
+        logits = outputs["logits"] if isinstance(outputs, dict) else outputs.logits
+        return F.cross_entropy(
+            logits, labels, weight=weight.to(logits.device), label_smoothing=label_smoothing
+        )
+
+    return compute_loss
+
+
 def _mlflow_callback(run: Run) -> Any:
     from transformers import TrainerCallback
 
@@ -134,6 +156,12 @@ def train_transformer(cfg: Config, output_dir: Path | None = None) -> ModelCard:
 
     params: dict[str, Any] = t.model_dump(mode="json", exclude={"output_dir"})
     params.update(train_rows=len(train_df), eval_rows=len(val_df), truncated_ratio=truncated)
+    loss_fn = None
+    if t.class_weighting == "balanced":
+        weights = class_weights(train_ds["labels"], len(LABELS))
+        loss_fn = _weighted_loss(weights, t.label_smoothing)
+        params["class_weights"] = [round(w, 3) for w in weights]
+        logger.info("Class weights %s", dict(zip(LABELS, params["class_weights"], strict=True)))
 
     with start_run(cfg.tracking, f"transformer-{t.model_name.split('/')[-1]}") as run:
         run.set_tags(
@@ -149,6 +177,7 @@ def train_transformer(cfg: Config, output_dir: Path | None = None) -> ModelCard:
             processing_class=tokenizer,
             data_collator=DataCollatorWithPadding(tokenizer),
             compute_metrics=_metrics_fn,
+            compute_loss_func=loss_fn,
             callbacks=[
                 EarlyStoppingCallback(early_stopping_patience=t.early_stopping_patience),
                 _mlflow_callback(run),

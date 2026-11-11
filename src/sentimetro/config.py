@@ -69,7 +69,7 @@ class BaselineConfig(_Strict):
     max_features_word: int = Field(default=200_000, ge=1000)
     max_features_char: int = Field(default=300_000, ge=1000)
     min_df: int = Field(default=2, ge=1)
-    c_grid: list[float] = Field(default_factory=lambda: [0.5, 1.0, 2.0, 4.0])
+    c_grid: list[float] = Field(default_factory=lambda: [0.125, 0.25, 0.5, 1.0, 2.0])
     class_weight: Literal["balanced"] | None = "balanced"
     max_iter: int = Field(default=2000, ge=100)
 
@@ -87,19 +87,22 @@ class TransformerConfig(_Strict):
     model_revision: str = "8b0f77825ae49a0d099bf5e3aea8da71f6c0851f"
     output_dir: Path = Path("models/transformer")
     # Subsampling keeps CPU training feasible; set to null to use everything (GPU).
-    train_samples: int | None = Field(default=30_000, ge=100)
+    train_samples: int | None = Field(default=100_000, ge=100)
     eval_samples: int | None = Field(default=2_000, ge=100)
     max_length: int = Field(default=128, ge=16, le=512)
-    epochs: float = Field(default=2.0, gt=0)
+    epochs: float = Field(default=1.0, gt=0)
     learning_rate: float = Field(default=5e-5, gt=0)
     weight_decay: float = Field(default=0.01, ge=0)
     warmup_ratio: float = Field(default=0.06, ge=0, lt=1)
     train_batch_size: int = Field(default=32, ge=1)
     eval_batch_size: int = Field(default=64, ge=1)
     gradient_accumulation_steps: int = Field(default=1, ge=1)
-    eval_steps: int = Field(default=400, ge=1)
+    eval_steps: int = Field(default=500, ge=1)
     early_stopping_patience: int = Field(default=3, ge=1)
     label_smoothing: float = Field(default=0.0, ge=0, lt=1)
+    # "balanced" weights the cross-entropy by inverse class frequency, which
+    # helps the minority `neutro` class and therefore macro-F1.
+    class_weighting: Literal["balanced"] | None = "balanced"
     fp16: bool = False
     num_threads: int | None = Field(default=None, ge=1)
 
