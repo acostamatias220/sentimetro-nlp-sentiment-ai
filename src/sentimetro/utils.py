@@ -41,7 +41,7 @@ def set_seed(seed: int) -> None:
 def git_commit() -> str | None:
     try:
         out = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],  # noqa: S607
+            ["git", "rev-parse", "--short", "HEAD"],
             capture_output=True,
             text=True,
             check=True,

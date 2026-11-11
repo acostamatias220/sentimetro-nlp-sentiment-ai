@@ -73,8 +73,7 @@ def stratified_sample(df: pd.DataFrame, n: int | None, seed: int) -> pd.DataFram
     # Fix rounding so the total is exactly n.
     quotas.iloc[0] += n - int(quotas.sum())
     parts = [
-        df[df["label"] == label].sample(n=int(q), random_state=seed)
-        for label, q in quotas.items()
+        df[df["label"] == label].sample(n=int(q), random_state=seed) for label, q in quotas.items()
     ]
     return pd.concat(parts).sample(frac=1.0, random_state=seed).reset_index(drop=True)
 
@@ -83,7 +82,7 @@ def describe(splits: dict[str, pd.DataFrame]) -> dict[str, Any]:
     """Small statistics summary written next to the processed data."""
     stats: dict[str, Any] = {}
     for name, df in splits.items():
-        words = df["text"].str.split().str.len()
+        words = df["text"].str.count(r"\S+")
         stats[name] = {
             "rows": len(df),
             "labels": {k: int(v) for k, v in df["label"].value_counts().sort_index().items()},
@@ -109,14 +108,13 @@ def preprocess(cfg: DataConfig) -> dict[str, Path]:
 
     cfg.processed_dir.mkdir(parents=True, exist_ok=True)
     paths: dict[str, Path] = {}
-    for split, df in clean.items():
-        before = len(raw[split])
-        df = df.drop(columns="_key")
-        clean[split] = df
+    for split, frame in clean.items():
+        final = frame.drop(columns="_key")
+        clean[split] = final
         path = cfg.processed_dir / f"{split}.parquet"
-        df.to_parquet(path, index=False)
+        final.to_parquet(path, index=False)
         paths[split] = path
-        logger.info("  %-10s %7d -> %7d rows", split, before, len(df))
+        logger.info("  %-10s %7d -> %7d rows", split, len(raw[split]), len(final))
 
     stats = describe(clean)
     (cfg.processed_dir / "stats.json").write_text(
