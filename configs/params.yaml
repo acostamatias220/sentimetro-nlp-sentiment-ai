@@ -56,10 +56,27 @@ transformer:
 export:
   output_dir: models/production
   source: transformer
-  opset: 17
+  opset: 18
   quantize: true
 
 evaluation:
   reports_dir: reports
+  # Every model is evaluated on the full test split (4,990 reviews) and benchmarked on CPU.
+  models:
+    baseline:
+      path: models/baseline
+      title: TF-IDF + LogReg
+    baseline_30k:
+      path: models/baseline-30k
+      title: TF-IDF + LogReg (30k)
+    distilbeto_pytorch:
+      path: models/transformer/final
+      title: DistilBETO (PyTorch)
+    distilbeto_onnx_fp32:
+      path: models/onnx-fp32
+      title: DistilBETO (ONNX fp32)
+    distilbeto_onnx_int8:
+      path: models/onnx-int8
+      title: DistilBETO (ONNX int8)
   n_error_samples: 12
   benchmark_batches: 20

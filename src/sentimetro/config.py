@@ -29,7 +29,13 @@ class DataConfig(_Strict):
     processed_dir: Path = Path("data/processed")
     # Original label is stars - 1 (0..4). Maps each star label to a class name.
     star_to_label: dict[int, str] = Field(
-        default_factory=lambda: {0: "negativo", 1: "negativo", 2: "neutro", 3: "positivo", 4: "positivo"}
+        default_factory=lambda: {
+            0: "negativo",
+            1: "negativo",
+            2: "neutro",
+            3: "positivo",
+            4: "positivo",
+        }
     )
     min_chars: int = Field(default=3, ge=1)
     max_chars: int = Field(default=5000, ge=10)
@@ -91,7 +97,7 @@ class TransformerConfig(_Strict):
     train_batch_size: int = Field(default=32, ge=1)
     eval_batch_size: int = Field(default=64, ge=1)
     gradient_accumulation_steps: int = Field(default=1, ge=1)
-    eval_steps: int = Field(default=400, ge=10)
+    eval_steps: int = Field(default=400, ge=1)
     early_stopping_patience: int = Field(default=3, ge=1)
     label_smoothing: float = Field(default=0.0, ge=0, lt=1)
     fp16: bool = False
@@ -101,12 +107,28 @@ class TransformerConfig(_Strict):
 class ExportConfig(_Strict):
     output_dir: Path = Path("models/production")
     source: Literal["transformer", "baseline"] = "transformer"
-    opset: int = Field(default=17, ge=13)
+    opset: int = Field(default=18, ge=18)
     quantize: bool = True
+
+
+class EvaluatedModel(_Strict):
+    path: Path
+    title: str
+
+
+def _default_models() -> dict[str, EvaluatedModel]:
+    return {
+        "baseline": EvaluatedModel(path=Path("models/baseline"), title="TF-IDF + LogReg"),
+        "distilbeto_onnx_int8": EvaluatedModel(
+            path=Path("models/onnx-int8"), title="DistilBETO (ONNX int8)"
+        ),
+    }
 
 
 class EvaluationConfig(_Strict):
     reports_dir: Path = Path("reports")
+    # Models compared on the test split (missing folders are skipped with a warning).
+    models: dict[str, EvaluatedModel] = Field(default_factory=_default_models)
     n_error_samples: int = Field(default=12, ge=1)
     benchmark_batches: int = Field(default=20, ge=1)
 
