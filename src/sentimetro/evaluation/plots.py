@@ -30,8 +30,13 @@ def plot_confusion_matrix(
         for j in range(len(labels)):
             color = "white" if norm[i, j] > 0.55 else "#1f2937"
             ax.text(
-                j, i, f"{norm[i, j]:.0%}\n({int(cm[i, j])})",
-                ha="center", va="center", fontsize=9, color=color,
+                j,
+                i,
+                f"{norm[i, j]:.0%}\n({int(cm[i, j])})",
+                ha="center",
+                va="center",
+                fontsize=9,
+                color=color,
             )
     fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
     fig.tight_layout()
