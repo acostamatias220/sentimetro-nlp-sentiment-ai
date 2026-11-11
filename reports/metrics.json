@@ -1,0 +1,122 @@
+{
+  "baseline_30k": {
+    "title": "TF-IDF + LogReg (30k)",
+    "model_dir": "models/baseline-30k",
+    "train_rows": 30000,
+    "summary": {
+      "accuracy": 0.7214428857715431,
+      "macro_f1": 0.6871186813066424,
+      "weighted_f1": 0.7296351808620968,
+      "polar_error_rate": 0.04088176352705411,
+      "f1_negativo": 0.7820051413881748,
+      "f1_neutro": 0.4738243123336291,
+      "f1_positivo": 0.805526590198123
+    },
+    "benchmark": {
+      "latency_p50_ms": 1.502353499745368,
+      "latency_p95_ms": 2.3251751998031978,
+      "throughput_texts_per_s": 3691.2547122230035
+    },
+    "size_mb": 4.391229629516602
+  },
+  "baseline": {
+    "title": "TF-IDF + LogReg (completo)",
+    "model_dir": "models/baseline",
+    "train_rows": 197108,
+    "summary": {
+      "accuracy": 0.7412825651302605,
+      "macro_f1": 0.7080367820123455,
+      "weighted_f1": 0.7507217283473668,
+      "polar_error_rate": 0.02625250501002004,
+      "f1_negativo": 0.8023797206414899,
+      "f1_neutro": 0.493891797556719,
+      "f1_positivo": 0.8278388278388278
+    },
+    "benchmark": {
+      "latency_p50_ms": 1.2159715006418992,
+      "latency_p95_ms": 1.8238417995235068,
+      "throughput_texts_per_s": 3976.5171995792393
+    },
+    "size_mb": 10.518879890441895
+  },
+  "distilbeto_30k": {
+    "title": "DistilBETO (30k, 2 épocas, sin pesos de clase)",
+    "model_dir": "models/transformer-30k/final",
+    "train_rows": 30000,
+    "summary": {
+      "accuracy": 0.7703406813627255,
+      "macro_f1": 0.7084645061972749,
+      "weighted_f1": 0.7614204902288552,
+      "polar_error_rate": 0.031462925851703405,
+      "f1_negativo": 0.8297872340425532,
+      "f1_neutro": 0.4428169014084507,
+      "f1_positivo": 0.8527893831408209
+    },
+    "benchmark": {
+      "latency_p50_ms": 7.74444700073218,
+      "latency_p95_ms": 21.196388100452168,
+      "throughput_texts_per_s": 105.32483213210055
+    },
+    "size_mb": 256.83422470092773
+  },
+  "distilbeto_pytorch": {
+    "title": "DistilBETO (PyTorch)",
+    "model_dir": "models/transformer/final",
+    "train_rows": 100000,
+    "summary": {
+      "accuracy": 0.7589178356713426,
+      "macro_f1": 0.7265617521608329,
+      "weighted_f1": 0.7691373274800081,
+      "polar_error_rate": 0.014629258517034067,
+      "f1_negativo": 0.8149699031667103,
+      "f1_neutro": 0.5129310344827587,
+      "f1_positivo": 0.8517843188330294
+    },
+    "benchmark": {
+      "latency_p50_ms": 9.98188149969792,
+      "latency_p95_ms": 17.883133401119267,
+      "throughput_texts_per_s": 78.05596472071683
+    },
+    "size_mb": 256.83422470092773
+  },
+  "distilbeto_onnx_fp32": {
+    "title": "DistilBETO (ONNX fp32)",
+    "model_dir": "models/onnx-fp32",
+    "train_rows": 100000,
+    "summary": {
+      "accuracy": 0.7589178356713426,
+      "macro_f1": 0.7265617521608329,
+      "weighted_f1": 0.7691373274800081,
+      "polar_error_rate": 0.014629258517034067,
+      "f1_negativo": 0.8149699031667103,
+      "f1_neutro": 0.5129310344827587,
+      "f1_positivo": 0.8517843188330294
+    },
+    "benchmark": {
+      "latency_p50_ms": 4.737143500278762,
+      "latency_p95_ms": 10.519238849883548,
+      "throughput_texts_per_s": 95.64723266654052
+    },
+    "size_mb": 257.70606899261475
+  },
+  "distilbeto_onnx_int8": {
+    "title": "DistilBETO (ONNX int8)",
+    "model_dir": "models/onnx-int8",
+    "train_rows": 100000,
+    "summary": {
+      "accuracy": 0.7655310621242485,
+      "macro_f1": 0.7346832241317304,
+      "weighted_f1": 0.7761735677053605,
+      "polar_error_rate": 0.012424849699398798,
+      "f1_negativo": 0.8204860203814999,
+      "f1_neutro": 0.5264957264957265,
+      "f1_positivo": 0.8570679255179648
+    },
+    "benchmark": {
+      "latency_p50_ms": 5.834331499499967,
+      "latency_p95_ms": 14.330677451289374,
+      "throughput_texts_per_s": 87.76249780748503
+    },
+    "size_mb": 64.45485782623291
+  }
+}
