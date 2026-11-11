@@ -39,7 +39,7 @@ transformer:
   # CPU-friendly defaults. On a GPU: train_samples: null, eval_samples: null, fp16: true
   train_samples: 100000        # ~51% of the cleaned train split
   eval_samples: 2000
-  max_length: 128              # covers ~97% of reviews without truncation
+  max_length: 128              # only ~1.7% of reviews are truncated
   epochs: 1
   learning_rate: 5.0e-5
   weight_decay: 0.01
