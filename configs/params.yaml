@@ -1,0 +1,65 @@
+# Pipeline parameters. Every value is validated by `sentimetro.config.Config`.
+# Override from the CLI: `sentimetro train-transformer --set transformer.epochs=3`
+# or with make: `make train-transformer ARGS="--set transformer.train_samples=null"`.
+
+data:
+  dataset_name: SetFit/amazon_reviews_multi_es
+  dataset_revision: 16015418b488c9186fce74b058877ea939ca934d
+  raw_dir: data/raw
+  processed_dir: data/processed
+  # 1-2 stars -> negativo, 3 -> neutro, 4-5 -> positivo (the dataset stores stars - 1)
+  star_to_label: {0: negativo, 1: negativo, 2: neutro, 3: positivo, 4: positivo}
+  min_chars: 3
+  max_chars: 5000
+  seed: 42
+
+tracking:
+  tracking_uri: sqlite:///mlflow.db
+  artifact_location: mlartifacts
+  experiment_name: sentimetro
+  enabled: true
+
+baseline:
+  output_dir: models/baseline
+  train_samples: null          # null = full training split (~200k reviews, trains in minutes)
+  word_ngram_max: 2
+  char_ngram_min: 2
+  char_ngram_max: 5
+  max_features_word: 200000
+  max_features_char: 300000
+  min_df: 2
+  c_grid: [0.5, 1.0, 2.0, 4.0]
+  class_weight: balanced
+  max_iter: 2000
+
+transformer:
+  model_name: dccuchile/distilbert-base-spanish-uncased   # DistilBETO, 67M params
+  model_revision: 8b0f77825ae49a0d099bf5e3aea8da71f6c0851f
+  output_dir: models/transformer
+  # CPU-friendly defaults. On a GPU: train_samples: null, eval_samples: null, fp16: true
+  train_samples: 30000
+  eval_samples: 2000
+  max_length: 128
+  epochs: 2
+  learning_rate: 5.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.06
+  train_batch_size: 32
+  eval_batch_size: 64
+  gradient_accumulation_steps: 1
+  eval_steps: 400
+  early_stopping_patience: 3
+  label_smoothing: 0.0
+  fp16: false
+  num_threads: null
+
+export:
+  output_dir: models/production
+  source: transformer
+  opset: 17
+  quantize: true
+
+evaluation:
+  reports_dir: reports
+  n_error_samples: 12
+  benchmark_batches: 20
