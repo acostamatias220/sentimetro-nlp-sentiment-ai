@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+
+# Data and model artifacts (download / regenerate with `make data` and `make train`)
+data/raw/
+data/processed/
+models/
+*.onnx
+*.safetensors
+*.bin
+*.pt
+*.joblib
+
+# Experiment tracking (local MLflow store)
+mlflow.db
+mlruns/
+mlartifacts/
+
+# Hugging Face cache
+.hf-cache/
+
+# Environment files (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
