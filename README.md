@@ -9,7 +9,7 @@
 ![MLflow](https://img.shields.io/badge/mlflow-tracking-0194E2?logo=mlflow&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Pipeline **end-to-end** de machine learning que clasifica reseñas de productos en español como **negativas, neutras o positivas**: descarga reproducible de datos, limpieza y control de _leakage_, un **baseline clásico** (TF-IDF + regresión logística), **fine-tuning de un transformer en español** (DistilBETO) con PyTorch y 🤗 Transformers, seguimiento de experimentos con **MLflow**, exportación a **ONNX cuantizado (int8)** y una **API FastAPI** lista para producción con métricas de **Prometheus**, logs estructurados, Docker y CI.
+Pipeline **end-to-end** de machine learning que clasifica reseñas de productos en español como **negativas, neutras o positivas**: descarga reproducible de datos, limpieza y control de _leakage_, un **baseline clásico** (TF-IDF + regresión logística), **fine-tuning de un transformer en español** (DistilBETO) con PyTorch y Transformers(hugging face) , seguimiento de experimentos con **MLflow**, exportación a **ONNX cuantizado (int8)** y una **API FastAPI** lista para producción con métricas de **Prometheus**, logs estructurados, Docker y CI.
 
 > 🇬🇧 _End-to-end NLP pipeline for 3-class sentiment analysis of Spanish product reviews (Amazon reviews, ~200k): reproducible data prep with dedup and leakage control, TF-IDF + logistic regression baseline vs. fine-tuned DistilBETO (PyTorch + HF Trainer, class-weighted loss, early stopping), MLflow tracking, ONNX export with parity checks and int8 dynamic quantization, FastAPI batch inference service with Prometheus metrics, JSON logs, a web demo, Docker, pytest + ruff + mypy (strict) and GitHub Actions._
 
@@ -17,7 +17,7 @@ Pipeline **end-to-end** de machine learning que clasifica reseñas de productos 
 
 ---
 
-## ✨ Qué incluye
+##  Qué incluye
 
 - **Datos reproducibles**: _dataset_ público de Hugging Face con **revisión fijada** (commit), limpieza de texto compartida entre entrenamiento y _serving_, deduplicación, descarte de textos ambiguos y **eliminación de solapamiento** entre train / validación / test.
 - **Dos enfoques comparados con números reales**: baseline TF-IDF (palabras + n-gramas de caracteres) + regresión logística vs. **DistilBETO** (_fine-tuning_ completo con `Trainer`, _loss_ ponderada por clase, _early stopping_ y selección del mejor _checkpoint_ por macro-F1).
@@ -27,7 +27,7 @@ Pipeline **end-to-end** de machine learning que clasifica reseñas de productos 
 - **Producción**: exportación a **ONNX** con verificación de paridad contra PyTorch, **cuantización dinámica int8** (4× más chico) y una API **FastAPI** que no necesita PyTorch: `/predict` por lotes, `/health`, `/model-info`, `/metrics` (Prometheus) y una **demo web**.
 - **Calidad**: 60 tests con pytest (la API se prueba con un **modelo dummy** entrenado en milisegundos y la exportación ONNX con un transformer diminuto creado localmente → CI sin descargas pesadas), **ruff**, **mypy --strict**, pre-commit con **gitleaks** y GitHub Actions.
 
-## 🧱 Stack
+##  Stack
 
 | Capa            | Tecnologías                                                                                     |
 | --------------- | ----------------------------------------------------------------------------------------------- |
@@ -38,7 +38,7 @@ Pipeline **end-to-end** de machine learning que clasifica reseñas de productos 
 | API             | FastAPI, pydantic v2, pydantic-settings, Uvicorn, prometheus-client                              |
 | Calidad / DevOps | pytest, ruff, mypy (strict), pre-commit, gitleaks, uv, Docker multi-stage, docker compose, GitHub Actions |
 
-## 🏗️ Arquitectura
+##  Arquitectura
 
 ```mermaid
 flowchart LR
@@ -104,7 +104,7 @@ sequenceDiagram
     M-->>C: respuesta + X-Request-ID
 ```
 
-## 📊 Dataset
+##  Dataset
 
 [`SetFit/amazon_reviews_multi_es`](https://huggingface.co/datasets/SetFit/amazon_reviews_multi_es): el subconjunto en español del _Multilingual Amazon Reviews Corpus_ (Keung et al., 2020), con 200.000 reseñas de train y 5.000 de validación y de test, balanceadas por estrellas. La descarga usa la revisión `1601541` para que siempre se obtengan exactamente los mismos datos.
 
@@ -128,7 +128,7 @@ La mediana es de 22 palabras por reseña; con `max_length = 128` tokens solo se 
 
 > Los datos crudos y procesados **no se versionan** (`data/` está en `.gitignore`); se regeneran con `make data`.
 
-## 🧠 Entrenamiento
+##  Entrenamiento
 
 ### Baseline: TF-IDF + regresión logística
 
@@ -145,7 +145,7 @@ La mediana es de 22 palabras por reseña; con `max_length = 128` tokens solo se 
 
 > **Restricción de cómputo (honestidad ante todo)**: los resultados de abajo se entrenaron en una **CPU de 8 núcleos sin GPU**. Por eso el transformer usa un _subsample_ estratificado de **100.000 reseñas** (~51% del train limpio), **1 época** y `max_length=128` (≈24 minutos). En GPU basta con `--set transformer.train_samples=null --set transformer.epochs=3 --set transformer.fp16=true`.
 
-## 📈 Resultados
+##  Resultados
 
 Evaluación sobre el **test completo (4.990 reseñas que el modelo nunca vio)**. Latencia y throughput medidos en la misma CPU de 8 núcleos (latencia = una reseña por request; throughput = lotes de 32).
 
@@ -296,7 +296,7 @@ sentimetro_prediction_confidence_count 9.0
 sentimetro_model_info{backend="onnx",name="sentimetro-distilbert-base-spanish-uncased-onnx-int8",version="0.1.0"} 1.0
 ```
 
-## 🧪 Tests y calidad
+##  Tests y calidad
 
 ```bash
 make test        # pytest + cobertura (incluye export ONNX de un transformer diminuto)
@@ -320,7 +320,7 @@ make typecheck   # mypy --strict
 
 CI (GitHub Actions) corre ruff, mypy y pytest con torch CPU, y construye la imagen Docker. Los _hooks_ de pre-commit agregan **gitleaks** y `detect-private-key` para que no se cuele ningún secreto.
 
-## 📁 Estructura
+##  Estructura
 
 ```
 sentimetro/
@@ -344,7 +344,7 @@ sentimetro/
 └── .github/workflows/ci.yml
 ```
 
-## 🔐 Configuración y secretos
+##  Configuración y secretos
 
 Todo se configura por `configs/params.yaml` (entrenamiento) y variables de entorno con prefijo `SENTIMETRO_` (API). El repositorio solo incluye [`.env.example`](.env.example) con valores vacíos; `.env`, los datos, los modelos y la base de MLflow están en `.gitignore`.
 
@@ -359,7 +359,7 @@ Todo se configura por `configs/params.yaml` (entrenamiento) y variables de entor
 | `SENTIMETRO_ORT_THREADS`       | Hilos de ONNX Runtime (0 = automático)                    | `0`                 |
 | `HF_TOKEN`                     | Opcional, solo para más límite de descargas del Hub       | vacío               |
 
-## ⚠️ Limitaciones
+##  Limitaciones
 
 - **Cómputo**: el transformer se entrenó en CPU con la mitad del train y 1 época; con el dataset completo y más épocas en GPU el resultado debería mejorar.
 - **Etiquetas derivadas de estrellas**: la etiqueta es la puntuación del usuario, no una anotación del texto. Hay ruido (reseñas positivas con 2★, quejas del envío con 3★) y el análisis de errores muestra que muchos "errores" con alta confianza son de este tipo.
@@ -368,7 +368,7 @@ Todo se configura por `configs/params.yaml` (entrenamiento) y variables de entor
 - Textos de más de 128 tokens se truncan (≈1,7% de las reseñas).
 - Docker y docker compose están escritos pero **no se probaron** en la máquina de desarrollo (no tenía Docker); CI construye la imagen.
 
-## 🗺️ Próximos pasos
+##  Próximos pasos
 
 - Entrenar con el dataset completo en GPU y probar modelos más grandes (BETO, RoBERTa-BNE, mDeBERTa) con búsqueda de hiperparámetros (Optuna + MLflow).
 - Calibración de probabilidades (temperature scaling) y un umbral de "no sé" para predicciones de baja confianza.
@@ -376,6 +376,6 @@ Todo se configura por `configs/params.yaml` (entrenamiento) y variables de entor
 - Registro de modelos de MLflow con etapas (_staging_ / _production_) y despliegue canary.
 - Pipeline declarativo con DVC para cachear etapas y versionar datos.
 
-## 📄 Licencia
+##  Licencia
 
 MIT © Matías Acosta
