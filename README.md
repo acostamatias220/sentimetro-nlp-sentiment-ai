@@ -31,10 +31,10 @@ Pipeline **end-to-end** de machine learning que clasifica reseñas de productos 
 
 | Capa            | Tecnologías                                                                                     |
 | --------------- | ----------------------------------------------------------------------------------------------- |
-| Datos           | 🤗 Datasets, pandas, pyarrow (Parquet)                                                           |
-| Modelado        | scikit-learn (TF-IDF + LogisticRegression), PyTorch, 🤗 Transformers (`Trainer`), DistilBETO     |
+| Datos           | HuggingFace Datasets, pandas, pyarrow (Parquet)                                                           |
+| Modelado        | scikit-learn (TF-IDF + LogisticRegression), PyTorch, HuggingFace Transformers (`Trainer`), DistilBETO     |
 | Experimentos    | MLflow (backend SQLite local + artefactos en disco), semillas fijas, config YAML + pydantic      |
-| Inferencia      | ONNX, ONNX Runtime (int8 dinámico), 🤗 Tokenizers                                                |
+| Inferencia      | ONNX, ONNX Runtime (int8 dinámico), HuggingFace Tokenizers                                                |
 | API             | FastAPI, pydantic v2, pydantic-settings, Uvicorn, prometheus-client                              |
 | Calidad / DevOps | pytest, ruff, mypy (strict), pre-commit, gitleaks, uv, Docker multi-stage, docker compose, GitHub Actions |
 
