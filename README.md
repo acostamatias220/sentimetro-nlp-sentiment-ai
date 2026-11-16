@@ -240,39 +240,6 @@ La imagen solo tiene FastAPI + ONNX Runtime (sin PyTorch), corre con usuario sin
 | GET    | `/docs`       | OpenAPI / Swagger UI                                                         |
 | GET    | `/demo/`      | Demo web                                                                     |
 
-```bash
-curl -s http://127.0.0.1:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{"texts": ["Llegó rapidísimo y funciona perfecto", "Se rompió a los dos días"]}'
-```
-
-```json
-{
-  "model": "sentimetro-distilbert-base-spanish-uncased-onnx-int8",
-  "model_version": "0.1.0",
-  "predictions": [
-    {
-      "label": "positivo",
-      "score": 0.9494,
-      "scores": {
-        "negativo": 0.0038,
-        "neutro": 0.0468,
-        "positivo": 0.9494
-      }
-    },
-    {
-      "label": "negativo",
-      "score": 0.6514,
-      "scores": {
-        "negativo": 0.6514,
-        "neutro": 0.2754,
-        "positivo": 0.0732
-      }
-    }
-  ],
-  "latency_ms": 8.59
-}
-```
 
 La documentación interactiva (OpenAPI) se genera a partir de los schemas pydantic:
 
