@@ -186,7 +186,7 @@ Cada corrida registra la configuración completa, el commit de git, las curvas d
 
 ![MLflow](docs/screenshots/mlflow.png)
 
-## 🚀 Cómo reproducirlo
+##  Cómo reproducirlo
 
 ### Requisitos
 
@@ -229,7 +229,7 @@ docker compose up --build      # API en :8000 y Prometheus en :9090
 
 La imagen solo tiene FastAPI + ONNX Runtime (sin PyTorch), corre con usuario sin privilegios, sistema de archivos de solo lectura y _healthcheck_. El modelo se monta como volumen de solo lectura.
 
-## 📡 API
+##  API
 
 | Método | Endpoint      | Descripción                                                                 |
 | ------ | ------------- | --------------------------------------------------------------------------- |
